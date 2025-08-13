@@ -19,7 +19,6 @@ products = [
     {"id": 3, "name": "Producto 3", "price": 50}
 ]
 
-# Estructura: [{id, name, price, quantity}]
 cart: List[dict] = []
 
 class CartItem(BaseModel):
