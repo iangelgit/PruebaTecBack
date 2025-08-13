@@ -13,7 +13,7 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-products = [
+products: List[dict] = [
     {"id": 1, "name": "Producto 1", "price": 100},
     {"id": 2, "name": "Producto 2", "price": 200},
     {"id": 3, "name": "Producto 3", "price": 50}
@@ -24,9 +24,20 @@ cart: List[dict] = []
 class CartItem(BaseModel):
     product_id: int
 
+class NewProduct(BaseModel):
+    name: str
+    price: float
+
 @app.get("/productos")
 def get_products():
     return products
+
+@app.post("/productos")
+def create_product(item: NewProduct):
+    new_id = max(p["id"] for p in products) + 1 if products else 1
+    product = {"id": new_id, "name": item.name, "price": item.price}
+    products.append(product)
+    return {"message": "Producto creado", "product": product}
 
 @app.post("/carrito")
 def add_to_cart(item: CartItem):
