@@ -1,30 +1,35 @@
 from fastapi import FastAPI, HTTPException
+from pydantic import BaseModel
+from typing import List
 from fastapi.middleware.cors import CORSMiddleware
 
 app = FastAPI()
 
-# Configurar CORS
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # o ["https://tu-dominio.vercel.app"] para restringir
+    allow_origins=["*"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
 
-# Rutas
+products = [
+    {"id": 1, "name": "Producto 1", "price": 100},
+    {"id": 2, "name": "Producto 2", "price": 200},
+]
+
+cart: List[dict] = []
+
+class CartItem(BaseModel):
+    product_id: int
+
 @app.get("/productos")
 def get_products():
-    return [
-        {"id": 1, "name": "Producto 1", "price": 100},
-        {"id": 2, "name": "Producto 2", "price": 200},
-    ]
-
-cart = []
+    return products
 
 @app.post("/carrito")
-def add_to_cart(item: dict):
-    product = next((p for p in get_products() if p["id"] == item["product_id"]), None)
+def add_to_cart(item: CartItem):
+    product = next((p for p in products if p["id"] == item.product_id), None)
     if not product:
         raise HTTPException(status_code=404, detail="Producto no encontrado")
     cart.append(product)
